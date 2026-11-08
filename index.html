@@ -1,0 +1,536 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Kata Ganti Nama Diri</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Mitr:wght@400;500&family=Noto+Sans+Thai:wght@400;500;600&display=swap">
+<style>
+/* Layout: one working card under a ten-window progress strip; the Malay sentence is the loudest thing on the page. */
+:root {
+  --bg: #e9f0ed;
+  --surface: #fbfdfc;
+  --sheet: #f0f6f4;
+  --ink: #102f2b;
+  --muted: #4f6b66;
+  --line: #c3d4cf;
+  --brand: #0f5c52;
+  --on-brand: #ffffff;
+  --gold: #d99a1f;
+  --gold-soft: #fbefd2;
+  --ok-bg: #d9f1e3; --ok-fg: #0f5a36; --ok-bd: #7cc7a0;
+  --warn-bg: #fcefc9; --warn-fg: #6b4700; --warn-bd: #e2b94f;
+  --bad-bg: #fbe1df; --bad-fg: #8f1f24; --bad-bd: #e49a9c;
+  --font-display: "Mitr", "Noto Sans Thai", system-ui, sans-serif;
+  --font-body: "Noto Sans Thai", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-malay: "Fraunces", Georgia, "Times New Roman", serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c1a18; --surface: #142623; --sheet: #1a312d; --ink: #e4f0ed; --muted: #9bb8b2; --line: #2a4642;
+    --brand: #4fc0ae; --on-brand: #06201c; --gold: #e8b44a; --gold-soft: #3a2f12;
+    --ok-bg: #14382a; --ok-fg: #8fe0b4; --ok-bd: #2d7a54;
+    --warn-bg: #3b3010; --warn-fg: #f0cd75; --warn-bd: #8a6d1a;
+    --bad-bg: #3d1a1c; --bad-fg: #f4a6a8; --bad-bd: #8a3338;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0c1a18; --surface: #142623; --sheet: #1a312d; --ink: #e4f0ed; --muted: #9bb8b2; --line: #2a4642;
+  --brand: #4fc0ae; --on-brand: #06201c; --gold: #e8b44a; --gold-soft: #3a2f12;
+  --ok-bg: #14382a; --ok-fg: #8fe0b4; --ok-bd: #2d7a54;
+  --warn-bg: #3b3010; --warn-fg: #f0cd75; --warn-bd: #8a6d1a;
+  --bad-bg: #3d1a1c; --bad-fg: #f4a6a8; --bad-bd: #8a3338;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.65; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
+
+.wrap {
+  max-width: 720px; margin: 0 auto; padding-block: 22px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.eyebrow { margin: 0; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+h1 { margin: 4px 0 6px; font: 500 clamp(28px, 6vw, 38px)/1.2 var(--font-display); text-wrap: balance; }
+.lede { margin: 0 0 18px; color: var(--muted); max-width: 52ch; }
+
+.meter { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; font-size: 14px; color: var(--muted); }
+.meter b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+.track { list-style: none; margin: 0 0 18px; padding: 0; display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; }
+.track li { height: 10px; border-radius: 3px; background: var(--line); transition: background .2s; }
+.track li.ok { background: var(--ok-bd); }
+.track li.retry { background: var(--warn-bd); }
+.track li.now { background: var(--gold); }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 22px 20px; }
+.qno { margin: 0 0 14px; font: 500 15px/1.3 var(--font-display); color: var(--brand); }
+.scene { background: var(--sheet); border-radius: 10px; padding: 11px 14px; margin: 0 0 18px; font-size: 15px; }
+.scene span { display: block; font-size: 12px; font-weight: 600; letter-spacing: .08em; color: var(--muted); }
+
+.sentence { margin: 0 0 22px; font: 600 clamp(26px, 6.4vw, 34px)/1.35 var(--font-malay); overflow-wrap: anywhere; }
+.slot { display: inline-block; min-width: 4.2ch; min-height: 1.35em; padding: 0 .3ch; margin: 0 .1ch 0 0; text-align: center; font: inherit; color: inherit; background: transparent; border: 0; border-bottom: 3px solid var(--gold); border-radius: 4px 4px 0 0; vertical-align: baseline; }
+.slot[aria-disabled="true"] { cursor: default; }
+.slot.pick { background: var(--gold-soft); cursor: pointer; }
+.slot.ok { background: var(--ok-bg); color: var(--ok-fg); border-color: var(--ok-bd); }
+.slot.bad { background: var(--bad-bg); color: var(--bad-fg); border-color: var(--bad-bd); }
+
+.opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(104px, 1fr)); gap: 10px; margin-bottom: 14px; }
+.opt { min-height: 54px; padding: 10px 8px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--sheet); font: 500 20px/1.2 var(--font-malay); transition: border-color .15s, background .15s; }
+.opt:hover:not(:disabled) { border-color: var(--brand); background: var(--surface); }
+.opt:disabled { cursor: default; }
+.opt.wrong { background: var(--bad-bg); color: var(--bad-fg); border-color: var(--bad-bd); text-decoration: line-through; }
+.opt.right { background: var(--ok-bg); color: var(--ok-fg); border-color: var(--ok-bd); }
+.opt:disabled:not(.wrong):not(.right) { opacity: .55; }
+.opt.placed { opacity: .4; border-style: dashed; }
+.opt[draggable="true"] { cursor: grab; }
+.how { margin: 0 0 8px; font-size: 13.5px; color: var(--muted); }
+
+.aids { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+.aid { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border: 1.5px solid var(--line); border-radius: 999px; background: transparent; font-size: 14px; font-weight: 500; }
+.aid:hover { border-color: var(--brand); }
+.aid[aria-expanded="true"] { background: var(--gold-soft); border-color: var(--gold); }
+.aid svg { width: 18px; height: 18px; flex: none; }
+.panel { margin: 0 0 12px; padding: 12px 14px; border-radius: 10px; font-size: 15px; background: var(--gold-soft); }
+.panel.tip { background: var(--sheet); }
+.panel strong { display: block; font-size: 13px; letter-spacing: .04em; margin-bottom: 2px; }
+
+.fb { margin: 14px 0 0; padding: 14px 16px; border-radius: 12px; border: 1px solid; font-size: 15.5px; }
+.fb.ok { background: var(--ok-bg); color: var(--ok-fg); border-color: var(--ok-bd); }
+.fb.warn { background: var(--warn-bg); color: var(--warn-fg); border-color: var(--warn-bd); }
+.fb.bad { background: var(--bad-bg); color: var(--bad-fg); border-color: var(--bad-bd); }
+.fb small { display: block; margin-top: 8px; font-size: 13px; opacity: .9; }
+
+.primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 10px 22px; border: 0; border-radius: 12px; background: var(--brand); color: var(--on-brand); font-weight: 600; font-size: 16px; }
+.primary:hover { filter: brightness(1.08); }
+.ghost { min-height: 48px; padding: 10px 20px; border: 1.5px solid var(--line); border-radius: 12px; background: transparent; font-weight: 500; }
+.ghost:hover { border-color: var(--brand); }
+.nextrow { margin-top: 16px; display: flex; justify-content: flex-end; }
+.primary:disabled { opacity: .45; cursor: default; filter: none; }
+
+.score { text-align: center; padding: 6px 0 18px; }
+.score .big { font: 500 clamp(52px, 14vw, 72px)/1 var(--font-display); font-variant-numeric: tabular-nums; }
+.score .big span { color: var(--muted); font-size: .5em; }
+.score p { margin: 8px auto 0; max-width: 46ch; }
+.stats { margin: 0; color: var(--muted); font-size: 14px; }
+h2 { margin: 26px 0 10px; font: 500 20px/1.3 var(--font-display); }
+.review { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.review li { display: grid; grid-template-columns: 2.2em 1fr auto; gap: 4px 10px; align-items: start; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.review .n { font: 500 15px/1.6 var(--font-display); color: var(--muted); }
+.review .s { font: 600 19px/1.4 var(--font-malay); overflow-wrap: anywhere; }
+.review .e { grid-column: 2 / 4; margin: 0; font-size: 14px; color: var(--muted); }
+.badge { font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 999px; border: 1px solid; white-space: nowrap; }
+.badge.ok { background: var(--ok-bg); color: var(--ok-fg); border-color: var(--ok-bd); }
+.badge.retry { background: var(--warn-bg); color: var(--warn-fg); border-color: var(--warn-bd); }
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 600; background: var(--sheet); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.w { font: 600 17px/1.4 var(--font-malay); }
+.actions { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 10px; }
+
+.cover { border: 1px solid var(--line); border-radius: 20px; overflow: hidden; background: var(--surface); }
+.cover-top { background: var(--brand); color: var(--on-brand); padding: 28px 22px 26px; }
+.cover-top .eyebrow { color: inherit; opacity: .85; }
+.cover-top h1 { margin: 8px 0 8px; font-size: clamp(36px, 10vw, 56px); line-height: 1.1; }
+.cover-top p { margin: 0; opacity: .94; }
+.cloud { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+.cloud span { padding: 5px 14px; border: 1.5px solid currentColor; border-radius: 999px; font: 600 18px/1.3 var(--font-malay); opacity: .9; }
+.cover-body { padding: 22px; }
+.cover-body h2 { margin: 0 0 8px; }
+.facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0 0 22px; padding: 0; list-style: none; }
+.facts li { background: var(--sheet); border-radius: 10px; padding: 10px 6px; text-align: center; font-size: 13.5px; line-height: 1.4; }
+.facts b { display: block; font: 500 26px/1.2 var(--font-display); }
+.obj { margin: 0 0 22px; padding-left: 1.3em; }
+.obj li { margin-bottom: 4px; }
+.lesson h2 { margin: 0 0 12px; }
+.lesson .eyebrow { margin-bottom: 8px; }
+.dots { display: flex; gap: 6px; margin: 0 0 16px; }
+.dots i { width: 28px; height: 6px; border-radius: 3px; background: var(--line); }
+.dots i.on { background: var(--gold); }
+.lesson p { margin: 0 0 12px; }
+.ex { background: var(--sheet); border-radius: 12px; padding: 12px 16px; margin: 0 0 12px; }
+.ex p { margin: 0; }
+.ex .ms { font: 600 22px/1.45 var(--font-malay); }
+.ex .tr { color: var(--muted); font-size: 15px; }
+.ex mark { background: var(--gold-soft); color: inherit; padding: 0 4px; border-radius: 4px; }
+.minis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 0 0 14px; }
+.mini { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; background: var(--sheet); }
+.mini .w { font: 600 26px/1.2 var(--font-malay); }
+.mini .m { font-size: 14px; color: var(--muted); }
+.mini .e { margin-top: 8px; font: 500 17px/1.4 var(--font-malay); }
+.mini .t { font-size: 13.5px; color: var(--muted); }
+.note { background: var(--gold-soft); border-radius: 10px; padding: 10px 14px; font-size: 15px; }
+.checks { margin: 0 0 12px; padding-left: 1.4em; }
+.checks li { margin-bottom: 6px; }
+.lesson-nav { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 20px; }
+.cover-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<main class="wrap">
+  <header id="hd" hidden>
+    <p class="eyebrow">Lembaran Kerja · แบบฝึกหัดโต้ตอบ</p>
+    <h1>Kata Ganti Nama Diri</h1>
+    <p class="lede">อ่านสถานการณ์ แล้วแตะคำสรรพนามเพื่อวางลงในช่องว่าง (หรือลากไปวางก็ได้) จากนั้นกดตรวจคำตอบ ตอบผิดลองใหม่ได้ ติดขัดกดดูคำใบ้และเคล็ดลับได้เลย</p>
+    <div class="meter"><span>ข้อ <b id="m-no">1</b> / 10</span><span>ตอบถูกครั้งแรก <b id="m-score">0</b> ข้อ</span></div>
+    <ol class="track" id="track" aria-label="ความคืบหน้า 10 ข้อ"></ol>
+  </header>
+  <section id="stage" aria-live="off"></section>
+</main>
+
+<script>
+(function () {
+  var PRON = {
+    Saya:   { p: 1, n: 1 },
+    Kami:   { p: 1, n: 2 },
+    Kita:   { p: 1, n: 2 },
+    Dia:    { p: 3, n: 1 },
+    Mereka: { p: 3, n: 2 },
+    Beliau: { p: 3, n: 1 }
+  };
+  var NAMES = Object.keys(PRON);
+
+  var ITEMS = [
+    { post: " makan nasi.", ans: "Saya",
+      scene: "ผู้พูดบอกเพื่อนว่าตัวเองกำลังกินข้าวอยู่",
+      hint: "ถามตัวเองว่าใครกำลังกินข้าว คือคนที่กำลังพูดอยู่ และมีแค่คนเดียว ลองหาคำที่แปลว่า “ฉัน/ผม”",
+      tip: "Saya ใช้ได้กับทุกคนที่พูดถึงตัวเอง และสุภาพในทุกสถานการณ์ เป็นคำที่ปลอดภัยที่สุดเมื่อไม่แน่ใจ",
+      why: "Saya = ฉัน/ผม เป็นสรรพนามบุรุษที่ 1 เอกพจน์ ใช้แทนผู้พูดเอง",
+      o: { Dia: ["bad", "🔴 Belum tepat! Dia คือคนอื่น ไม่ใช่ผู้พูด แต่ในสถานการณ์นี้ผู้พูดกำลังเล่าถึงตัวเอง"] } },
+    { post: " minum air.", ans: "Dia",
+      scene: "ผู้พูดเล่าให้ครูฟังว่า อะห์มัด เพื่อนผู้ชายคนหนึ่งซึ่งไม่ได้อยู่ตรงนี้ กำลังดื่มน้ำ",
+      hint: "คนที่ดื่มน้ำคือ อะห์มัด มีคนเดียว และไม่ได้อยู่ในวงสนทนา ลองหาคำที่แปลว่า “เขา/เธอ”",
+      tip: "ภาษามลายูไม่แยกเพศ Dia ใช้ได้ทั้งผู้ชายและผู้หญิง ต่างจากไทยที่มี “เขา” กับ “เธอ”",
+      why: "Dia = เขา/เธอ เป็นสรรพนามบุรุษที่ 3 เอกพจน์ ใช้แทนคนหนึ่งคนที่ถูกพูดถึง (ในที่นี้คืออะห์มัด)",
+      o: {} },
+    { post: " membaca buku.", ans: "Saya",
+      scene: "ผู้พูดบอกเพื่อนว่าตัวเองกำลังอ่านหนังสืออยู่ในห้องสมุด",
+      hint: "ผู้อ่านหนังสือคือตัวผู้พูดเอง และไม่มีคำบอกว่ามีคนอื่นร่วมด้วย",
+      tip: "ประโยคที่เล่าเรื่องตัวเองคนเดียว ให้นึกถึง Saya ก่อน ค่อยคิดถึง Kami/Kita เมื่อมีคนร่วมด้วยหลายคน",
+      why: "Saya = ฉัน/ผม บุรุษที่ 1 เอกพจน์ ใช้เมื่อผู้พูดทำกิจกรรมนั้นเพียงคนเดียว",
+      o: {} },
+    { post: " pergi ke sekolah.", ans: "Mereka",
+      scene: "ผู้พูดบอกว่า เด็กนักเรียนสามคนข้างบ้านกำลังไปโรงเรียน",
+      hint: "คนที่ไปโรงเรียนมีสามคน และผู้พูดไม่ได้ไปด้วย ลองหาคำที่แปลว่า “พวกเขา”",
+      tip: "เห็นคนอื่นมากกว่าหนึ่งคนที่ไม่ได้ร่วมสนทนา ให้นึกถึง Mereka",
+      why: "Mereka = พวกเขา เป็นสรรพนามบุรุษที่ 3 พหูพจน์ ใช้แทนคนอื่นตั้งแต่สองคนขึ้นไป",
+      o: { Beliau: ["bad", "🔴 Belum tepat! Beliau ใช้กับบุคคลเดียวที่เราให้เกียรติ แต่ในสถานการณ์นี้เป็นเด็กนักเรียนหลายคน"] } },
+    { post: " bermain bola.", ans: "Kami",
+      scene: "ผู้พูดและเพื่อนร่วมทีมกำลังเล่าให้โค้ชฟัง โค้ชไม่ได้ลงเล่นด้วย (ผู้ฟังไม่รวมอยู่ในกลุ่ม)",
+      hint: "ผู้พูดอยู่ในกลุ่มที่เล่นบอล ส่วนโค้ชซึ่งเป็นผู้ฟังไม่ได้เล่น ลองหาคำที่แปลว่า “พวกเรา” แบบไม่นับผู้ฟัง",
+      tip: "Kami = พวกเรา “ไม่รวมคุณ” (ผู้ฟังอยู่นอกกลุ่ม) ส่วน Kita = พวกเรา “รวมคุณด้วย”",
+      why: "Kami = พวกเรา เป็นสรรพนามบุรุษที่ 1 พหูพจน์ ใช้เมื่อผู้ฟังไม่ได้อยู่ในกลุ่มของผู้พูด",
+      o: { Beliau: ["bad", "🔴 Belum tepat! Beliau ใช้กับบุคคลเดียวที่เราให้เกียรติ ไม่ใช่กลุ่มคนที่เล่นบอล"] } },
+    { post: " suka kucing.", ans: "Dia",
+      scene: "ผู้พูดบอกว่า นูรีน น้องสาวของเขา ชอบแมว",
+      hint: "คนที่ชอบแมวคือน้องสาว มีคนเดียว ไม่ใช่ผู้พูด และไม่ใช่ผู้ใหญ่ที่ต้องให้เกียรติเป็นพิเศษ",
+      tip: "Dia ใช้กับคนทั่วไปที่เราพูดถึงทีละคน ส่วน Beliau สงวนไว้สำหรับคนที่ต้องให้เกียรติ",
+      why: "Dia = เขา/เธอ บุรุษที่ 3 เอกพจน์ ใช้แทนน้องสาวซึ่งเป็นคนทั่วไปที่ถูกพูดถึง",
+      o: {} },
+    { post: " seorang guru.", ans: "Beliau",
+      scene: "ผู้พูดแนะนำคุณครูท่านหนึ่งให้เพื่อนรู้จักอย่างให้เกียรติ",
+      hint: "ในประโยคมี seorang (หนึ่งคน) และ guru (ครู) ซึ่งเป็นผู้ใหญ่ที่ควรให้เกียรติ ลองเลือกคำที่สุภาพที่สุด",
+      tip: "เห็น guru, Cikgu, ustaz หรือผู้ใหญ่ที่เคารพ ให้นึกถึง Beliau",
+      why: "Beliau = ท่าน/เขา (แบบให้เกียรติ) บุรุษที่ 3 เอกพจน์ ใช้กับครูหรือผู้ใหญ่ที่เคารพ",
+      o: { Mereka: ["bad", "🔴 Belum tepat! seorang = “หนึ่งคน” แต่ Mereka = พวกเขา (หลายคน) คำที่ใช้กับครูหนึ่งท่านอย่างให้เกียรติคือ Beliau"] } },
+    { post: " menulis nama.", ans: "Saya",
+      scene: "ผู้พูดบอกครูว่าตัวเองกำลังเขียนชื่อลงบนสมุด",
+      hint: "คนเขียนชื่อคือผู้พูดเอง คนเดียว ไม่มีคำบอกว่ามีคนอื่นเขียนด้วย",
+      tip: "ประโยคที่ไม่มีคำบอกกลุ่ม เช่น bersama, semua, murid-murid มักหมายถึงคนเดียว",
+      why: "Saya = ฉัน/ผม บุรุษที่ 1 เอกพจน์ ใช้แทนผู้พูดที่เขียนชื่อของตนเอง",
+      o: {} },
+    { post: " makan roti.", ans: "Kami",
+      scene: "ผู้พูดกับพี่น้องโทรบอกคุณยายที่อยู่ต่างจังหวัดว่ากำลังกินขนมปัง (คุณยายไม่ได้กินด้วย)",
+      hint: "ผู้กินคือผู้พูดกับพี่น้อง ส่วนคุณยายซึ่งเป็นผู้ฟังไม่ได้กินด้วย ลองหาคำที่แปลว่า “พวกเรา” แบบไม่นับผู้ฟัง",
+      tip: "ผู้ฟังไม่ได้ร่วมกิจกรรมด้วย = Kami ถ้าผู้ฟังร่วมด้วย = Kita",
+      why: "Kami = พวกเรา บุรุษที่ 1 พหูพจน์ ไม่รวมผู้ฟัง (คุณยายไม่ได้กินด้วย)",
+      o: {} },
+    { post: " bermain bersama.", ans: "Kita",
+      scene: "ผู้พูดชวนเพื่อนที่กำลังคุยอยู่ด้วยกันว่า ไปเล่นด้วยกันเถอะ (ผู้ฟังร่วมเล่นด้วย)",
+      hint: "bersama แปลว่า “ด้วยกัน” ต้องมีหลายคน และผู้พูดชวนผู้ฟังให้ร่วมด้วย ลองหาคำที่แปลว่า “พวกเรา” แบบนับผู้ฟังด้วย",
+      tip: "Kita = พวกเรา “รวมคุณด้วย” เห็นคำชวนหรือกิจกรรมร่วมกัน เช่น bersama ให้นึกถึง Kita",
+      why: "Kita = พวกเรา บุรุษที่ 1 พหูพจน์ รวมผู้ฟังด้วย",
+      o: { Saya: ["bad", "🔴 Belum tepat! bersama = ด้วยกัน ต้องมีหลายคน แต่ Saya คือผู้พูดคนเดียว ลองเลือกคำที่แปลว่า “พวกเรา”"] } }
+  ];
+
+  var SUMMARY = [
+    ["Saya", "บุรุษที่ 1", "เอกพจน์", "ผู้พูดเอง ใช้ได้สุภาพทุกสถานการณ์"],
+    ["Kami", "บุรุษที่ 1", "พหูพจน์", "พวกเรา ไม่รวมผู้ฟัง"],
+    ["Kita", "บุรุษที่ 1", "พหูพจน์", "พวกเรา รวมผู้ฟังด้วย"],
+    ["Dia", "บุรุษที่ 3", "เอกพจน์", "เขา/เธอ คนทั่วไปทีละคน"],
+    ["Mereka", "บุรุษที่ 3", "พหูพจน์", "พวกเขา คนอื่นตั้งแต่สองคนขึ้นไป"],
+    ["Beliau", "บุรุษที่ 3", "เอกพจน์", "ท่าน/เขา แบบให้เกียรติ ใช้กับครูและผู้ใหญ่"]
+  ];
+
+  var ICON_HINT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5 1.1 1.3 1.1 2.2h5c0-.9.5-1.7 1.1-2.2A6 6 0 0 0 12 3z"/></svg>';
+  var ICON_TIP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3M14 9l2 2"/></svg>';
+
+  function shuffle(a) {
+    a = a.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  /* Feedback for a wrong pick, chosen by what kind of mistake it is. Returns [tone, message]. */
+  function wrongFeedback(item, c) {
+    if (item.o[c]) return item.o[c];
+    var k = item.ans, pc = PRON[c], pk = PRON[k];
+    if (k === "Kita" && c === "Kami") return ["warn", "🟡 Perhatikan! Kami = พวกเราที่ไม่รวมผู้ฟัง แต่สถานการณ์นี้ผู้ฟังร่วมด้วย จึงต้องใช้ Kita"];
+    if (k === "Kami" && c === "Kita") return ["warn", "🟡 Perhatikan! Kita = พวกเราที่รวมผู้ฟังด้วย แต่ในสถานการณ์นี้ผู้ฟังไม่ได้อยู่ในกลุ่ม จึงต้องใช้ Kami"];
+    if (k === "Beliau" && c === "Dia") return ["warn", "🟡 Hampir betul! Dia ใช้กับบุคคลทั่วไปได้ แต่กับครูหรือผู้ใหญ่ควรใช้ Beliau ซึ่งสุภาพกว่า"];
+    if (k === "Dia" && c === "Beliau") return ["warn", "🟡 Cuba lagi! Beliau ใช้กับผู้ใหญ่หรือบุคคลที่เคารพเท่านั้น แต่คนที่พูดถึงในประโยคนี้เป็นบุคคลทั่วไป ให้ใช้ Dia"];
+    if (pc.p !== pk.p) {
+      return pk.p === 1
+        ? ["warn", "🟡 Cuba lagi! " + c + " ใช้แทนคนที่ถูกพูดถึง (บุรุษที่ 3) แต่ในสถานการณ์นี้ผู้พูดอยู่ในประโยคด้วย (บุรุษที่ 1)"]
+        : ["warn", "🟡 Cuba lagi! " + c + " ใช้แทนผู้พูด (บุรุษที่ 1) แต่ในสถานการณ์นี้พูดถึงคนอื่น (บุรุษที่ 3)"];
+    }
+    if (pc.n !== pk.n) {
+      return pc.n === 1
+        ? ["warn", "🟡 Perhatikan จำนวนคน! " + c + " ใช้กับคนเดียว แต่ในประโยคนี้มีหลายคน"]
+        : ["warn", "🟡 Perhatikan จำนวนคน! " + c + " ใช้กับหลายคน แต่ในประโยคนี้มีคนเดียว"];
+    }
+    return ["bad", "🔴 Belum tepat. ลองถามว่า “ใครเป็นผู้กระทำ: ผู้พูด ผู้ฟัง หรือคนที่ถูกพูดถึง?”"];
+  }
+  var ASK = "ลองถามตัวเอง: ใครเป็นผู้กระทำ? กี่คน? ผู้ฟังร่วมด้วยหรือไม่? ต้องให้เกียรติเป็นพิเศษหรือไม่?";
+
+  var S, stage = document.getElementById("stage");
+
+  function fresh(view) {
+    return {
+      view: view || "quiz", step: 0,
+      i: 0, done: false,
+      first: ITEMS.map(function () { return null; }),
+      misses: ITEMS.map(function () { return 0; }),
+      hintUsed: ITEMS.map(function () { return false; }),
+      tipUsed: ITEMS.map(function () { return false; }),
+      order: ITEMS.map(function () { return shuffle(NAMES); }),
+      tried: [], sel: null, solved: false, last: null, hintOpen: false, tipOpen: false, fb: null
+    };
+  }
+  function resetQ() { S.tried = []; S.sel = null; S.solved = false; S.last = null; S.hintOpen = false; S.tipOpen = false; S.fb = null; }
+
+  function header() {
+    var li = "", score = 0, j;
+    for (j = 0; j < ITEMS.length; j++) {
+      var cls = "";
+      if (S.first[j] === true) { cls = "ok"; score++; }
+      else if (S.first[j] === false) cls = "retry";
+      if (!S.done && j === S.i && !S.solved) cls = cls || "now";
+      li += '<li class="' + cls + '"></li>';
+    }
+    document.getElementById("track").innerHTML = li;
+    document.getElementById("m-no").textContent = S.done ? ITEMS.length : S.i + 1;
+    document.getElementById("m-score").textContent = score;
+    return score;
+  }
+
+  function mini(w, m, e, t) {
+    return '<div class="mini"><div class="w" lang="ms">' + w + '</div><div class="m">' + m + '</div><div class="e" lang="ms">' + e + '</div><div class="t">' + t + '</div></div>';
+  }
+  var STEPS = [
+    { t: "สรรพนามคืออะไร?", h:
+      '<p>Kata Ganti Nama Diri คือ <b>คำที่ใช้แทนชื่อคน</b> เพื่อไม่ต้องพูดชื่อเดิมซ้ำหลายครั้ง เหมือน “ฉัน เขา พวกเรา” ในภาษาไทย</p>' +
+      '<div class="ex"><p class="ms" lang="ms"><b>Ali</b> membaca buku. <mark>Dia</mark> suka membaca.</p><p class="tr">อาลีอ่านหนังสือ เขาชอบอ่านหนังสือ</p></div>' +
+      '<p>คำว่า <b>Dia</b> ในประโยคที่สองใช้แทน <b>Ali</b> ถ้าไม่มีสรรพนาม ก็ต้องพูดว่า Ali ซ้ำอีกรอบ</p>' },
+    { t: "บุรุษที่ 1: ผู้พูด", h:
+      '<p>เมื่อผู้พูดอยู่ในประโยคด้วย ใช้ได้ 3 คำ</p><div class="minis">' +
+      mini("Saya", "ฉัน/ผม (คนเดียว)", "Saya makan nasi.", "ฉันกินข้าว") +
+      mini("Kami", "พวกเรา ไม่รวมผู้ฟัง", "Kami bermain bola.", "พวกเราเล่นบอล (คนฟังไม่ได้เล่นด้วย)") +
+      mini("Kita", "พวกเรา รวมผู้ฟัง", "Kita bermain bersama.", "พวกเราเล่นด้วยกัน (รวมคนฟัง)") +
+      '</div><p class="note">จำง่าย ๆ: <b>Kami</b> = พวกเรา “ไม่รวมคุณ” · <b>Kita</b> = พวกเรา “รวมคุณด้วย”</p>' },
+    { t: "บุรุษที่ 3: คนที่ถูกพูดถึง", h:
+      '<p>เมื่อพูดถึงคนอื่นที่ไม่ได้อยู่ในวงสนทนา ใช้ได้ 3 คำ</p><div class="minis">' +
+      mini("Dia", "เขา/เธอ (คนเดียว)", "Dia minum air.", "เขาดื่มน้ำ") +
+      mini("Mereka", "พวกเขา (หลายคน)", "Mereka pergi ke sekolah.", "พวกเขาไปโรงเรียน") +
+      mini("Beliau", "ท่าน (ให้เกียรติ)", "Beliau seorang guru.", "ท่านเป็นครู") +
+      '</div><p class="note"><b>Beliau</b> ใช้กับครู ผู้ใหญ่ หรือบุคคลที่เราเคารพ ส่วน <b>Dia</b> ใช้กับคนทั่วไป</p>' },
+    { t: "บุรุษที่ 2: ผู้ฟัง (ควรรู้)", h:
+      '<p>ใช้เรียกคนที่เรากำลังคุยด้วย แบบฝึกหัดนี้ยังไม่ใช้ แต่ควรรู้จักไว้</p><div class="minis">' +
+      mini("Awak / Kamu", "เธอ/คุณ (เป็นกันเอง)", "Awak suka membaca?", "ใช้กับเพื่อนหรือคนที่อายุน้อยกว่า") +
+      mini("Anda", "คุณ (ทางการ)", "Anda sudah makan?", "ใช้ในสถานการณ์ทางการ") +
+      '</div><p class="note">เวลาคุยกับครู นิยมเรียกด้วยตำแหน่ง เช่น <b>Cikgu</b> แทนการใช้คำว่า “คุณ”</p>' },
+    { t: "ถามตัวเอง 4 ข้อก่อนเลือกคำ", h:
+      '<ol class="checks"><li><b>ใครเป็นผู้กระทำ?</b> ผู้พูดเอง (บุรุษที่ 1) หรือคนอื่นที่ถูกพูดถึง (บุรุษที่ 3)</li>' +
+      '<li><b>กี่คน?</b> คนเดียว (Saya, Dia, Beliau) หรือหลายคน (Kami, Kita, Mereka)</li>' +
+      '<li><b>ผู้ฟังร่วมด้วยไหม?</b> ถ้าร่วมด้วยใช้ Kita ถ้าไม่ร่วมใช้ Kami</li>' +
+      '<li><b>ต้องให้เกียรติเป็นพิเศษไหม?</b> ถ้าพูดถึงครูหรือผู้ใหญ่ ใช้ Beliau</li></ol>' +
+      '<p class="note">ในแบบฝึกหัดมีปุ่ม คำใบ้ และ เคล็ดลับ ให้กดดูได้ทุกข้อ ไม่มีหักคะแนน</p>' }
+  ];
+
+  function renderCover() {
+    stage.innerHTML =
+      '<article class="cover"><div class="cover-top"><p class="eyebrow">Bahasa Melayu · มัธยมต้น</p>' +
+      '<h1 id="qno" tabindex="-1">Kata Ganti Nama Diri</h1><p>คำสรรพนามในภาษามลายู แทนตัวเอง แทนคนอื่น แทนกลุ่มคน</p>' +
+      '<div class="cloud" aria-hidden="true"><span>Saya</span><span>Kami</span><span>Kita</span><span>Dia</span><span>Mereka</span><span>Beliau</span></div></div>' +
+      '<div class="cover-body"><ul class="facts"><li><b>5</b>บทเรียนสั้น</li><li><b>10</b>ข้อฝึก</li><li><b>~10</b>นาที</li></ul>' +
+      '<h2>เมื่อเรียนจบ นักเรียนจะ</h2><ul class="obj"><li>บอกได้ว่าสรรพนามคืออะไรและใช้ทำอะไร</li>' +
+      '<li>แยกสรรพนามบุรุษที่ 1 และบุรุษที่ 3 ได้</li><li>เลือก Saya, Kami, Kita, Dia, Mereka, Beliau ให้ตรงสถานการณ์ได้</li></ul>' +
+      '<div class="cover-actions"><button type="button" class="primary" data-act="start">เริ่มเรียนเนื้อหา →</button>' +
+      '<button type="button" class="ghost" data-act="skip">ข้ามไปทำแบบฝึกหัด</button></div></div></article>';
+  }
+
+  function renderLesson() {
+    var st = STEPS[S.step], last = S.step === STEPS.length - 1, dots = "", j;
+    for (j = 0; j < STEPS.length; j++) dots += '<i class="' + (j === S.step ? "on" : "") + '"></i>';
+    stage.innerHTML =
+      '<article class="card lesson"><p class="eyebrow">เนื้อหา ' + (S.step + 1) + " / " + STEPS.length + '</p><div class="dots" aria-hidden="true">' + dots + "</div>" +
+      '<h2 id="qno" tabindex="-1">' + st.t + "</h2>" + st.h +
+      '<div class="lesson-nav">' + (S.step > 0 ? '<button type="button" class="ghost" data-act="prev">← ก่อนหน้า</button>' : "<span></span>") +
+      '<button type="button" class="primary" data-act="' + (last ? "toquiz" : "nextstep") + '">' + (last ? "เริ่มทำแบบฝึกหัด →" : "ถัดไป →") + "</button></div></article>";
+  }
+
+  function renderQuestion() {
+    var it = ITEMS[S.i], opts = "", word = "", state = "";
+    if (S.solved) { word = it.ans; state = "ok"; }
+    else if (S.sel) { word = S.sel; state = "pick"; }
+    else if (S.last) { word = S.last; state = "bad"; }
+    S.order[S.i].forEach(function (name) {
+      var cls = "opt", dis = "";
+      if (S.solved) { dis = " disabled"; if (name === it.ans) cls += " right"; }
+      else if (S.tried.indexOf(name) > -1) { dis = " disabled"; cls += " wrong"; }
+      else if (S.sel === name) { cls += " placed"; }
+      opts += '<button type="button" class="' + cls + '" data-act="pick" data-v="' + name + '"' + (dis ? dis : ' draggable="true"') + ">" + name + "</button>";
+    });
+    var fb = "";
+    if (S.fb) {
+      fb = '<div class="fb ' + S.fb[0] + '" id="fb" role="status">' + S.fb[1] +
+        (S.fb[0] !== "ok" ? "<small>" + ASK + "</small>" : "") + "</div>";
+    }
+    var last = S.i === ITEMS.length - 1;
+    stage.innerHTML =
+      '<article class="card">' +
+      '<h2 class="qno" id="qno" tabindex="-1" style="margin:0 0 14px">ข้อ ' + (S.i + 1) + "</h2>" +
+      '<p class="scene"><span>สถานการณ์</span>' + it.scene + "</p>" +
+      '<p class="sentence" lang="ms"><button type="button" class="slot ' + state + '" id="slot" data-act="clear" aria-disabled="' + (S.sel && !S.solved ? "false" : "true") + '" aria-label="' + (S.sel && !S.solved ? "ช่องว่าง ใส่คำว่า " + S.sel + " แตะเพื่อนำออก" : "ช่องว่าง") + '">' + word + "</button>" + it.post + "</p>" +
+      '<p class="how">แตะคำเพื่อวางลงในช่องว่าง (หรือลากไปวาง) แล้วกดตรวจคำตอบ</p>' +
+      '<div class="opts" role="group" aria-label="คลังคำสรรพนาม">' + opts + "</div>" +
+      '<div class="aids">' +
+      '<button type="button" class="aid" id="b-hint" data-act="hint" aria-expanded="' + S.hintOpen + '">' + ICON_HINT + "คำใบ้</button>" +
+      '<button type="button" class="aid" id="b-tip" data-act="tip" aria-expanded="' + S.tipOpen + '">' + ICON_TIP + "เคล็ดลับ</button></div>" +
+      (S.hintOpen ? '<div class="panel"><strong>💡 คำใบ้</strong>' + it.hint + "</div>" : "") +
+      (S.tipOpen ? '<div class="panel tip"><strong>🔑 เคล็ดลับ</strong>' + it.tip + "</div>" : "") +
+      fb +
+      (S.solved
+        ? '<div class="nextrow"><button type="button" class="primary" id="next" data-act="next">' + (last ? "ดูผลคะแนน" : "ข้อต่อไป") + " →</button></div>"
+        : '<div class="nextrow"><button type="button" class="primary" id="check" data-act="check"' + (S.sel ? "" : " disabled") + ">ตรวจคำตอบ</button></div>") +
+      "</article>";
+  }
+
+  function renderResult(score) {
+    var msg;
+    if (score === 10) msg = "🎉 Tahniah! Semua jawapan betul! คุณเลือกสรรพนามได้ถูกต้องทั้งหมด 10 ข้อตั้งแต่ครั้งแรก";
+    else if (score >= 8) msg = "👏 Bagus! ทำได้ดีมาก ทบทวนข้อที่พลาดอีกนิดก็เต็มแล้ว";
+    else if (score >= 5) msg = "😊 Teruskan usaha! พยายามต่อไป ลองอ่านเคล็ดลับของข้อที่พลาดอีกครั้ง";
+    else msg = "💪 Jangan putus asa! ฝึกอีกรอบได้เลย ใช้คำใบ้ช่วยได้";
+    var hints = S.hintUsed.filter(Boolean).length, tips = S.tipUsed.filter(Boolean).length;
+    var rows = ITEMS.map(function (it, j) {
+      var ok = S.first[j] === true;
+      return '<li><span class="n">' + (j + 1) + '</span><span class="s" lang="ms">' + it.ans + it.post + "</span>" +
+        '<span class="badge ' + (ok ? "ok" : "retry") + '">' + (ok ? "ถูกครั้งแรก" : "ลองซ้ำ " + S.misses[j] + " ครั้ง") + "</span>" +
+        '<p class="e">' + it.why + "</p></li>";
+    }).join("");
+    var table = SUMMARY.map(function (r) {
+      return '<tr><td class="w">' + r[0] + "</td><td>" + r[1] + "</td><td>" + r[2] + "</td><td>" + r[3] + "</td></tr>";
+    }).join("");
+    stage.innerHTML =
+      '<article class="card"><div class="score"><h2 id="qno" tabindex="-1" style="margin:0 0 4px;font-size:16px;color:var(--muted)">ผลคะแนน (ตอบถูกครั้งแรก)</h2>' +
+      '<div class="big">' + score + "<span> / 10</span></div><p>" + msg + "</p>" +
+      '<p class="stats">ใช้คำใบ้ ' + hints + " ข้อ · ดูเคล็ดลับ " + tips + " ข้อ</p></div>" +
+      '<div class="actions" style="justify-content:center"><button type="button" class="primary" data-act="restart">เริ่มใหม่</button><button type="button" class="ghost" data-act="review">ทบทวนเนื้อหา</button></div></article>' +
+      "<h2>เฉลยและคำอธิบายทั้ง 10 ข้อ</h2><ul class=\"review\">" + rows + "</ul>" +
+      "<h2>สรุปคำสรรพนามบุรุษที่ 1 และ 3</h2>" +
+      '<div class="tablewrap"><table><thead><tr><th>คำ</th><th>บุรุษ</th><th>จำนวน</th><th>ใช้เมื่อ</th></tr></thead><tbody>' + table + "</tbody></table></div>";
+  }
+
+  function render(focusSel) {
+    var hd = document.getElementById("hd");
+    if (S.view === "cover") { hd.hidden = true; renderCover(); }
+    else if (S.view === "lesson") { hd.hidden = true; renderLesson(); }
+    else {
+      hd.hidden = false;
+      var score = header();
+      if (S.done) renderResult(score); else renderQuestion();
+    }
+    if (focusSel) {
+      var el = stage.querySelector(focusSel);
+      if (el) el.focus({ preventScroll: false });
+    }
+  }
+
+  stage.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-act]");
+    if (!b || b.disabled) return;
+    var act = b.getAttribute("data-act"), it = ITEMS[S.i];
+    if (act === "start" || act === "review") { S.view = "lesson"; S.step = 0; render("#qno"); }
+    else if (act === "skip" || act === "toquiz") { S.view = "quiz"; render("#qno"); }
+    else if (act === "prev") { if (S.step > 0) S.step--; render("#qno"); }
+    else if (act === "nextstep") { if (S.step < STEPS.length - 1) S.step++; render("#qno"); }
+    else if (act === "pick") {
+      var pv = b.getAttribute("data-v");
+      if (S.solved || S.tried.indexOf(pv) > -1) return;
+      S.sel = (S.sel === pv) ? null : pv; S.last = null; S.fb = null;
+      render('.opt[data-v="' + pv + '"]');
+    } else if (act === "clear") {
+      if (S.solved || !S.sel) return;
+      S.sel = null; render();
+    } else if (act === "check") {
+      var v = S.sel;
+      if (!v || S.solved) return;
+      if (S.first[S.i] === null) S.first[S.i] = (v === it.ans);
+      if (v === it.ans) {
+        S.solved = true; S.last = null;
+        S.fb = ["ok", "🟢 Betul! " + it.why];
+        render("#next");
+      } else {
+        S.misses[S.i]++; S.tried.push(v); S.last = v; S.sel = null;
+        S.fb = wrongFeedback(it, v);
+        if (S.misses[S.i] >= 2 && !S.hintOpen) { S.hintOpen = true; S.hintUsed[S.i] = true; }
+        render(".opt:not(:disabled)");
+      }
+    } else if (act === "hint") {
+      S.hintOpen = !S.hintOpen; if (S.hintOpen) S.hintUsed[S.i] = true;
+      render("#b-hint");
+    } else if (act === "tip") {
+      S.tipOpen = !S.tipOpen; if (S.tipOpen) S.tipUsed[S.i] = true;
+      render("#b-tip");
+    } else if (act === "next") {
+      if (S.i === ITEMS.length - 1) S.done = true; else S.i++;
+      resetQ();
+      render("#qno");
+    } else if (act === "restart") {
+      S = fresh();
+      render("#qno");
+    }
+  });
+
+  stage.addEventListener("dragstart", function (e) {
+    var c = e.target.closest && e.target.closest(".opt");
+    if (!c || c.disabled) return;
+    e.dataTransfer.setData("text/plain", c.getAttribute("data-v"));
+    e.dataTransfer.effectAllowed = "move";
+  });
+  stage.addEventListener("dragover", function (e) {
+    if (!S.solved && e.target.closest && e.target.closest(".slot")) e.preventDefault();
+  });
+  stage.addEventListener("drop", function (e) {
+    var s = e.target.closest && e.target.closest(".slot");
+    if (!s || S.solved) return;
+    e.preventDefault();
+    var dv = e.dataTransfer.getData("text/plain");
+    if (NAMES.indexOf(dv) < 0 || S.tried.indexOf(dv) > -1) return;
+    S.sel = dv; S.last = null; S.fb = null;
+    render("#check");
+  });
+
+  S = fresh("cover");
+  render();
+})();
+</script>
+
+</body></html>
